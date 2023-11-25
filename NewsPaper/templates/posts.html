@@ -13,15 +13,15 @@
 {% if posts %}
     <table>
         <tr>
-            <th width="400">Заголовок<hr></th>
-            <th width="150">Дата публикации<hr></th>
-            <th width="800">Preview<hr></th>
+            <th width="400">Заголовок</th>
+            <th width="150">Дата публикации</th>
+            <th width="800">Preview</th>
         </tr>
         {% for post in posts %}
-        <tr>
-            <td>{{post.heading|censor}}<hr></td>
-            <td>{{post.created|date:'d M Y'}}<hr></td>
-            <td>{{post.text|censor|truncatewords:20}}<hr></td>
+        <tr class="table-group-divider">
+            <td>{{post.heading|censor}}</td>
+            <td>{{post.created|date:'d M Y'}}</td>
+            <td>{{post.text|censor|truncatewords:20}}</td>
         </tr>
         {% endfor %}
     </table>
