@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView
 from .models import Post
+from .filters import PostFilter
 
 
 class PostsList(ListView):
@@ -8,7 +9,17 @@ class PostsList(ListView):
     ordering = '-created'
     template_name = 'posts.html'
     context_object_name = 'posts'
+    paginate_by = 1
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        self.filterset = PostFilter(self.request.GET, queryset)
+        return self.filterset.qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['filterset'] = self.filterset
+        return context
 
 class PostDetail(DetailView):
     model = Post
