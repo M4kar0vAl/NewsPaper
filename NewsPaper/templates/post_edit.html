@@ -1,0 +1,14 @@
+{% extends 'flatpages/default.html' %}
+
+{% block content %}
+{% if post.type == 'nw' %}
+    <h1> Изменение новости </h1>
+{% elif post.type == 'ar' %}
+    <h1> Изменение статьи </h1>
+{% endif %}
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Подтвердить">
+</form>
+{% endblock %}

@@ -1,6 +1,7 @@
 {% extends 'flatpages/default.html'%}
 
 {% load custom_filters %}
+{% load custom_tags %}
 
 {% block title %}
 Все новости
@@ -9,11 +10,8 @@
 {% block content %}
 <h1>Все новости</h1>
 <h5>Всего статей: {{posts|length}}</h5>
-<hr>
-<form action="" method="get">
-    {{ filterset.form.as_p }}
-    <input type="submit" value="Найти">
-</form>
+<nav style="font-size:20px"><strong><a href="{% url 'search' %}" style="color:#2F4F4F; text-decoration:none">Поиск</a></strong></nav>
+
 {% if posts %}
     <table>
         <tr>
@@ -23,7 +21,7 @@
         </tr>
         {% for post in posts %}
         <tr class="table-group-divider">
-            <td>{{post.heading|censor}}</td>
+            <td><strong><a style="color:#2F4F4F; text-decoration:none" href="{% url 'post_detail' post.pk %}">{{post.heading|censor}}</a></strong></td>
             <td>{{post.created|date:'d M Y'}}</td>
             <td>{{post.text|censor|truncatewords:20}}</td>
         </tr>
@@ -32,17 +30,7 @@
 {%else%}
     <h2>Статей нет!</h2>
 {% endif %}
-{% if page_obj.has_previous %}
-    <a href="?page=1">1</a>
-    {% if page_obj.previous_page_number != 1 %}
-        ...<a href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
-    {% endif %}
-{% endif %}
-{{ page_obj.number }}
-{% if page_object.has_next %}
-    <a href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
-    {% if page_obj.next_page_number != page_obj.paginator.num_pages %}
-        ...<a href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
-    {% endif %}
-{% endif %}
+
+{% include 'includes/page_by_page.html' %}
+
 {% endblock content %}

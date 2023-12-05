@@ -1,0 +1,38 @@
+{% extends 'flatpages/default.html' %}
+{% load custom_filters %}
+
+{% block content %}
+<h5>Найдно статей: {{filtered_posts|length}}</h5>
+<hr>
+<form action="" method="get">
+    <table align="center">{{ filterset.form.as_table }}</table>
+    <input type="submit" value="Найти">
+</form>
+
+
+{% if not request.GET %}
+    <h2>Для поиска заполните форму</h2>
+{% else %}
+    {% if filtered_posts %}
+        <table>
+            <tr>
+                <th width="400">Заголовок</th>
+                <th width="150">Дата публикации</th>
+                <th width="800">Preview</th>
+            </tr>
+            {% for post in filtered_posts %}
+                <tr class="table-group-divider">
+                    <td><strong><a style="color:#2F4F4F; text-decoration:none" href="{% url 'post_detail' post.pk %}">{{post.heading|censor}}</a></strong></td>
+                    <td>{{post.created|date:'d M Y'}}</td>
+                    <td>{{post.text|censor|truncatewords:20}}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {%else%}
+        <h2>Поиск не дал результатов!</h2>
+    {% endif %}
+{% endif %}
+
+{% include 'includes/page_by_page.html' %}
+
+{% endblock %}

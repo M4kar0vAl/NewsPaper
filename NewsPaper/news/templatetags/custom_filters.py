@@ -1,4 +1,5 @@
 from django import template
+import re
 
 register = template.Library()
 
@@ -10,12 +11,11 @@ def censor(text):
     if not isinstance(text, str):
         raise ValueError('Подвергать цензуре можно только строки!')
 
+    matches = []
     for taboo in TABOO_WORDS:
-        if taboo in text:
-            text = text.replace(taboo, f'{taboo[0] + "*" * len(taboo[1:])}')
+        matches.extend(re.findall(taboo, text, flags=re.IGNORECASE))
 
-        if taboo.capitalize() in text:
-            taboo = taboo.capitalize()
-            text = text.replace(taboo, f'{taboo[0] + "*" * len(taboo[1:])}')
+    for match in set(matches):
+        text = re.sub(match, f'{match[0] + len(match[1:]) * "*"}', text)
 
     return text
