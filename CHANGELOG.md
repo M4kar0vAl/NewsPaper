@@ -1,5 +1,5 @@
 
-05.12.2023  
+## 05.12.2023  
 
 ### Added  
 
@@ -16,7 +16,7 @@
 - Post titles are now a different color and in bold  
 - Responsive navbar: Home renamed to Главная and added a hyperlink leading to a main page with all posts  
   
-02.12.2023  
+## 02.12.2023  
   
 ### Added  
   
@@ -26,7 +26,7 @@
   * category  
   * publication date later than  
   
-25.11.2023  
+## 25.11.2023  
   
 ### Added  
   
@@ -34,7 +34,7 @@
 - Separate page for each post. (no hyperlinks yet) (url: localhost:8000/news/int:<post_id>)  
 - Filter for obscene words defined in the program  
   
-19.11.2023  
+## 19.11.2023  
   
 ### Added  
   
