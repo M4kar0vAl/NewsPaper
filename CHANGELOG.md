@@ -22,9 +22,9 @@
   
 -Maximum of 1 post on one page.  
 -Search form on main page with following filters:  
- -heading contains  
- -category  
- -publication date later than  
+ *heading contains  
+ *category  
+ *publication date later than  
   
 25.11.2023  
   
@@ -39,8 +39,8 @@
 ### Added  
   
 -Created following models:  
- -Author  
- -Category  
- -Post  
- -PostCategory, representing ManyToMany relation between Post and Category  
- -Comment  
+ *Author  
+ *Category  
+ *Post  
+ *PostCategory, representing ManyToMany relation between Post and Category  
+ *Comment  
