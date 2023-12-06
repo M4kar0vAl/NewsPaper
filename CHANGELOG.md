@@ -39,8 +39,8 @@ Filter for obscene words defined in the program
 ### Added  
   
 Created following models:  
-	-Author  
- 	-Category  
-	-Post  
-	-PostCategory, representing ManyToMany relation between Post and Category  
-	-Comment  
+-Author  
+-Category  
+-Post  
+-PostCategory, representing ManyToMany relation between Post and Category  
+-Comment  
