@@ -35,3 +35,14 @@ Search form on main page with following filters:
 All posts displayed on main page. (url: localhost:8000/news)
 Separate page for each post. (no hyperlinks yet) (url: localhost:8000/news/int:<post_id>)
 Filter for obscene words defined in the program
+
+19.11.2023
+
+### Added
+
+Created following models:
+	-Author
+ 	-Category
+	-Post
+	-PostCategory, representing ManyToMany relation between Post and Category
+	-Comment
