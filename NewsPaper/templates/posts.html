@@ -21,7 +21,7 @@
         </tr>
         {% for post in posts %}
         <tr class="table-group-divider">
-            <td><strong><a style="color:#2F4F4F; text-decoration:none" href="{% url 'post_detail' post.pk %}">{{post.heading|censor}}</a></strong></td>
+            <td><strong><a style="color:#2F4F4F; text-decoration:none" href="{{ post.get_absolute_url }}">{{post.heading|censor}}</a></strong></td>
             <td>{{post.created|date:'d M Y'}}</td>
             <td>{{post.text|censor|truncatewords:20}}</td>
         </tr>
