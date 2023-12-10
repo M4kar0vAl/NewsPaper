@@ -4,26 +4,46 @@
 {% load custom_tags %}
 
 {% block title %}
-Все новости
+All posts
 {% endblock title %}
 
 {% block content %}
-<h1>Все новости</h1>
-<h5>Всего статей: {{posts|length}}</h5>
-<nav style="font-size:20px"><strong><a href="{% url 'search' %}" style="color:#2F4F4F; text-decoration:none">Поиск</a></strong></nav>
+<h1>All posts</h1>
+<h5>Total posts: {{posts|length}}</h5>
 
 {% if posts %}
-    <table>
+    <table align="center">
         <tr>
-            <th width="400">Заголовок</th>
-            <th width="150">Дата публикации</th>
-            <th width="800">Preview</th>
+            <th width="400">Heading</th>
+            <th width="150">Published</th>
+            <th width="500">Preview</th>
+            {% if perms.news.change_post %}
+                <th colspan="2">Actions</th>
+            {% endif %}
         </tr>
         {% for post in posts %}
         <tr class="table-group-divider">
-            <td><strong><a style="color:#2F4F4F; text-decoration:none" href="{{ post.get_absolute_url }}">{{post.heading|censor}}</a></strong></td>
+            <td><a href="{{ post.get_absolute_url }}">{{post.heading|censor}}</a></td>
             <td>{{post.created|date:'d M Y'}}</td>
             <td>{{post.text|censor|truncatewords:20}}</td>
+            <td>
+                {% if perms.news.change_post %}
+                    {% if post.type == 'nw' %}
+                        <a href="{% url 'news_edit' post.pk %}">Изменить</a>
+                    {% elif post.type == 'ar' %}
+                        <a href="{% url 'article_edit' post.pk %}">Изменить</a>
+                    {% endif %}
+                {% endif %}
+            </td>
+            <td>
+                {% if perms.news.delete_post %}
+                    {% if post.type == 'nw' %}
+                        <a href="{% url 'news_delete' post.pk %}">Удалить</a>
+                    {% elif post.type == 'ar' %}
+                        <a href="{% url 'article_delete' post.pk %}">Удалить</a>
+                    {% endif %}
+                {% endif %}
+            </td>
         </tr>
         {% endfor %}
     </table>
