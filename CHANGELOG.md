@@ -1,3 +1,17 @@
+## 11.12.2023  
+  
+### Added  
+  
+- bootstarp core js  
+  
+### Changed  
+  
+- table with posts now looking better  
+  
+### Fixed  
+  
+- "Add" button is actually working now  
+  
 ## 10.12.2023  
   
 ### Added  
