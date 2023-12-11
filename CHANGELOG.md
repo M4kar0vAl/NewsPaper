@@ -6,7 +6,10 @@
   
 ### Changed  
   
-- table with posts now looking better  
+- table with posts is looking better now
+- renamed:  
+  - "Изменить" --> "Change"
+  - "Удалить" --> "Delete" 
   
 ### Fixed  
   
