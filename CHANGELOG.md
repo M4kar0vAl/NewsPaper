@@ -1,4 +1,35 @@
-
+## 10.12.2023  
+  
+### Added  
+  
+- registration via:  
+  - email + password  
+  - yandex  
+- all registered users now added to the authors group, which means they can:  
+  - add posts  
+  - edit posts  
+- "Изменить" and "Удалить" buttons next to the post preview for users that have permission to change posts and delete posts respectively  
+- On navbar:  
+  - "Log out" button for logged in users  
+  - "Sign up" and "Log in" buttons for not logged in users  
+  - "Add" button, which supposed to be a dropdown button with selection of post type to add (not working yet)  
+- 403.html file to show custom 403 error  
+  
+### Changed  
+  
+- renamed:  
+  - "Поиск" --> "Search"  
+  - "Главная" --> "Home"  
+  - "Все новости" --> "All posts"  
+  - "Всего статей" --> "Total posts"  
+  - "Заголовок" --> "Heading"  
+  - "Дата публикации" --> "Published"  
+- moved "Search" button to the navigation bar 
+  
+### Removed  
+  
+- flatpages app
+  
 ## 05.12.2023  
 
 ### Added  
