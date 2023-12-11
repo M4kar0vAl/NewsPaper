@@ -12,40 +12,44 @@ All posts
 <h5>Total posts: {{posts|length}}</h5>
 
 {% if posts %}
-    <table align="center">
-        <tr>
-            <th width="400">Heading</th>
-            <th width="150">Published</th>
-            <th width="500">Preview</th>
-            {% if perms.news.change_post %}
-                <th colspan="2">Actions</th>
-            {% endif %}
-        </tr>
-        {% for post in posts %}
-        <tr class="table-group-divider">
-            <td><a href="{{ post.get_absolute_url }}">{{post.heading|censor}}</a></td>
-            <td>{{post.created|date:'d M Y'}}</td>
-            <td>{{post.text|censor|truncatewords:20}}</td>
-            <td>
+    <table class="table table-dark table-striped" align="center">
+        <thead>
+            <tr>
+                <th width="400">Heading</th>
+                <th width="150">Published</th>
+                <th width="500">Preview</th>
+                {% if perms.news.change_post or perms.news.add_post %}
+                    <th colspan="2">Actions</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody class="table-group-divider">
+            {% for post in posts %}
+            <tr>
+                <td><a class="link-light text-decoration-none fw-bold " href="{{ post.get_absolute_url }}">{{post.heading|censor}}</a></td>
+                <td>{{post.created|date:'d M Y'}}</td>
+                <td>{{post.text|censor|truncatewords:20}}</td>
                 {% if perms.news.change_post %}
+                <td>
                     {% if post.type == 'nw' %}
-                        <a href="{% url 'news_edit' post.pk %}">Изменить</a>
+                        <a class="link-warning text-decoration-none fw-bold" href="{% url 'news_edit' post.pk %}">Change</a>
                     {% elif post.type == 'ar' %}
-                        <a href="{% url 'article_edit' post.pk %}">Изменить</a>
+                        <a class="link-warning text-decoration-none fw-bold" href="{% url 'article_edit' post.pk %}">Change</a>
                     {% endif %}
+                </td>
                 {% endif %}
-            </td>
-            <td>
                 {% if perms.news.delete_post %}
+                <td>
                     {% if post.type == 'nw' %}
-                        <a href="{% url 'news_delete' post.pk %}">Удалить</a>
+                        <a class="link-danger text-decoration-none fw-bold" href="{% url 'news_delete' post.pk %}">Delete</a>
                     {% elif post.type == 'ar' %}
-                        <a href="{% url 'article_delete' post.pk %}">Удалить</a>
+                        <a class="link-danger text-decoration-none fw-bold" href="{% url 'article_delete' post.pk %}">Delete</a>
                     {% endif %}
+                </td>
                 {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
 {%else%}
     <h2>Статей нет!</h2>
