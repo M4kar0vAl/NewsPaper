@@ -1,3 +1,9 @@
+## 14.12.2023  
+  
+### Changed  
+  
+- less hardcoding in news/views.py  
+  
 ## 11.12.2023  
   
 ### Added  
