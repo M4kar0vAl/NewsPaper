@@ -1,3 +1,20 @@
+## 11.12.2023  
+  
+### Added  
+  
+- bootstarp core js  
+  
+### Changed  
+  
+- table with posts is looking better now
+- renamed:  
+  - "Изменить" --> "Change"
+  - "Удалить" --> "Delete" 
+  
+### Fixed  
+  
+- "Add" button is actually working now  
+  
 ## 10.12.2023  
   
 ### Added  
