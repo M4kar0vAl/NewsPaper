@@ -48,7 +48,7 @@ class NewsCreate(PermissionRequiredMixin, CreateView):
 
     def form_valid(self, form):
         news = form.save(commit=False)
-        news.type = 'nw'
+        news.type = Post.NEWS
         return super().form_valid(form)
 
 
@@ -60,7 +60,7 @@ class ArticleCreate(PermissionRequiredMixin, CreateView):
 
     def form_valid(self, form):
         article = form.save(commit=False)
-        article.type = 'ar'
+        article.type = Post.ARTICLE
         return super().form_valid(form)
 
 
@@ -71,7 +71,7 @@ class NewsUpdate(PermissionRequiredMixin, UpdateView):
     template_name = 'post_edit.html'
 
     def get_queryset(self):
-        news = Post.objects.filter(type='nw')
+        news = Post.objects.filter(type=Post.NEWS)
         return news
 
 
@@ -82,7 +82,7 @@ class ArticleUpdate(PermissionRequiredMixin, UpdateView):
     template_name = 'post_edit.html'
 
     def get_queryset(self):
-        articles = Post.objects.filter(type='ar')
+        articles = Post.objects.filter(type=Post.ARTICLE)
         return articles
 
 
@@ -92,7 +92,7 @@ class NewsDelete(DeleteView):
     success_url = reverse_lazy('post_list')
 
     def get_queryset(self):
-        news = Post.objects.filter(type='nw')
+        news = Post.objects.filter(type=Post.NEWS)
         return news
 
 
@@ -102,5 +102,5 @@ class ArticleDelete(DeleteView):
     success_url = reverse_lazy('post_list')
 
     def get_queryset(self):
-        articles = Post.objects.filter(type='ar')
+        articles = Post.objects.filter(type=Post.ARTICLE)
         return articles
