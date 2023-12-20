@@ -1,3 +1,15 @@
+## 20.12.2023  
+  
+### Added  
+  
+- Subscriptions page (can be ) where users can manage their subscriptions on post categories (uses Subscriber model)  
+- "Subscriptions" button on navbar to access the subscriptions page  
+- Newsletters:  
+  - welcome letter upon user regstration
+  - a letter with a link to the post for users subscribed to post categories when publishing a new post
+  - Users subscribed to categories are sent emails with links to posts in these categories every week (can't run with server simultaneously yet)  
+- _.env_example_ file containing environmental variables' names that should be defined in _.env_ file in same direcory as _.env_example_  
+
 ## 14.12.2023  
   
 ### Changed  
@@ -36,7 +48,7 @@
   - "Log out" button for logged in users  
   - "Sign up" and "Log in" buttons for not logged in users  
   - "Add" button, which supposed to be a dropdown button with selection of post type to add (not working yet)  
-- 403.html file to show custom 403 error  
+- _403.html_ file to show custom 403 error  
   
 ### Changed  
   
