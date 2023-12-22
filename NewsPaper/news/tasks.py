@@ -41,7 +41,7 @@ def new_post_notification(id):
         msg.send()
 
 
-@shared_task()
+@shared_task
 def week_post_list():
     one_week_ago = timezone.now() - timedelta(days=7)
     last_week_posts = Post.objects.filter(created__gte=one_week_ago)
