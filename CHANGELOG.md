@@ -1,3 +1,15 @@
+## 22.12.2023  
+  
+### Added  
+  
+- established a connection with Redis to use it as message broker  
+- configured Celery to use with Django  
+  
+### Changed  
+  
+- added 2 environment vriables required to connect to Redis db  
+- made post add newsletter and weekly newsletter async  
+  
 ## 20.12.2023  
   
 ### Added  
@@ -8,7 +20,7 @@
   - welcome letter upon user regstration
   - a letter with a link to the post for users subscribed to post categories when publishing a new post
   - Users subscribed to categories are sent emails with links to posts in these categories every week (can't run with server simultaneously yet)  
-- _.env_example_ file containing environmental variables' names that should be defined in _.env_ file in same direcory as _.env_example_  
+- _.env_example_ file containing environment variables' names that should be defined in _.env_ file in same direcory as _.env_example_  
 
 ## 14.12.2023  
   
