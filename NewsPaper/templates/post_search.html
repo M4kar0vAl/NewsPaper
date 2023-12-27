@@ -1,36 +1,106 @@
 {% extends 'flatpages/default.html' %}
 {% load custom_filters %}
 
+{% block title %}
+Search
+{% endblock %}
 {% block content %}
-<h5>Найдно статей: {{filtered_posts|length}}</h5>
-<hr>
-<form action="" method="get">
-    <table align="center">{{ filterset.form.as_table }}</table>
-    <input type="submit" value="Найти">
+<form class="mt-3" action="" method="get">
+    {% for f in filterset.form %}
+    <div class="text-bg-dark row justify-content-center">
+        <label for="{{ f.id_for_label }}" class="col-sm-2 my-auto text-bg-dark col-form-label fw-bold text-end">
+            {{ f.label }}
+        </label>
+        <div class="col-sm-4">
+            {{ f }}
+        </div>
+    </div>
+    <div class="invalid-feedback">
+        {{ f.errors }}
+    </div>
+    {% endfor %}
+    <input class="btn btn-primary mt-3" type="submit" value="Search">
+    <a class="btn btn-primary mt-3"
+       href="{% url 'search' %}?{% for fld in filterset.get_fields %}{{fld}}={% if not forloop.last %}&{% endif %}{% endfor %}">
+        Clear filters
+    </a>
 </form>
-
-
+<hr class="border border-light border-1 opacity-75 mt-4 mb-2">
+<h5>Posts found: {{ page_obj.paginator.count }}</h5>
+<hr class="border border-light border-1 opacity-75 mt-2 mb-4">
 {% if not request.GET %}
-    <h2>Для поиска заполните форму</h2>
+<h3>Fill the form to search!</h3>
 {% else %}
-    {% if filtered_posts %}
-        <table>
-            <tr>
-                <th width="400">Заголовок</th>
-                <th width="150">Дата публикации</th>
-                <th width="800">Preview</th>
-            </tr>
-            {% for post in filtered_posts %}
-                <tr class="table-group-divider">
-                    <td><strong><a style="color:#2F4F4F; text-decoration:none" href="{% url 'post_detail' post.pk %}">{{post.heading|censor}}</a></strong></td>
-                    <td>{{post.created|date:'d M Y'}}</td>
-                    <td>{{post.text|censor|truncatewords:20}}</td>
-                </tr>
+{% if filtered_posts %}
+{% for post in filtered_posts %}
+    <div class="list-group text-bg-dark border border-light border-2 opacity-75 d-flex mx-auto w-60 mb-2">
+        <div class="list-group-item text-bg-dark border-bottom-0 justify-content-between d-flex">
+            <h4 class="mb-0"><a class="link-salmon text-decoration-none fw-bold" href="{{ post.get_absolute_url }}">{{ post.heading|censor }}</a></h4>
+            <small class="text-bg-dark d-flex border-bottom-0">
+                {{ post.created|date:'d M Y' }}
+            </small>
+        </div>
+        <div class="list-group-item text-bg-dark d-flex justify-content-start border-bottom-0 dropdown small">
+            Categories:{% for cat in post.category.all %}
+            <a class="link-purple text-decoration-none fw-bold ms-2 me-2 dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {{ cat.name }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                    <form action="{% url 'subscriptions' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="category_id" value="{{ cat.id }}" />
+                        {% if cats_with_subscriptions|is_subscribed:cat.id %}
+                            <button class="dropdown-item btn btn-sm btn-dark disabled">You are subscribed to this category</button>
+                            <button name="action" value="unsubscribe" class="dropdown-item btn btn-sm btn-dark">Unsubscribe</button>
+                        {% else %}
+                            <button class="dropdown-item btn btn-sm btn-dark disabled">You are not subscribed to this category</button>
+                            <button name="action" value="subscribe" class="dropdown-item btn btn-sm btn-dark">Subscribe</button>
+                        {% endif %}
+                    </form>
+                </li>
+                <li>
+                    <hr class="dropdown-divider border-light">
+                </li>
+                <li>
+                    <a class="dropdown-item btn btn-sm" href="{% url 'search'%}?category={{ cat.id }}">Search this category</a>
+                </li>
+            </ul>
+            {% if not forloop.last %}
+            |
+            {% endif %}
             {% endfor %}
-        </table>
-    {%else%}
-        <h2>Поиск не дал результатов!</h2>
-    {% endif %}
+        </div>
+        <div class="list-group-item text-bg-dark border-bottom-0 d-flex justify-content-start">
+            <p class="text-start mb-0">{{ post.text|censor|truncatewords:50 }}</p>
+        </div>
+        {% if perms.news.change_post or perms.news.delete_post %}
+        <div class="list-group list-group-horizontal text-bg-dark d-flex justify-content-center">
+            {% if perms.news.change_post %}
+            <div class="list-group-item text-bg-dark d-flex justify-content-center border-0">
+                {% if post.type == 'nw' %}
+                    <a class="link-warning text-decoration-none fw-bold" href="{% url 'news_edit' post.pk %}">Change</a>
+                {% elif post.type == 'ar' %}
+                    <a class="link-warning text-decoration-none fw-bold" href="{% url 'article_edit' post.pk %}">Change</a>
+                {% endif %}
+            </div>
+            {% endif %}
+            {% if perms.news.delete_post %}
+            <div class="list-group-item text-bg-dark d-flex justify-content-center border-0">
+                {% if post.type == 'nw' %}
+                    <a class="link-danger text-decoration-none fw-bold" href="{% url 'news_delete' post.pk %}">Delete</a>
+                {% elif post.type == 'ar' %}
+                    <a class="link-danger text-decoration-none fw-bold" href="{% url 'article_delete' post.pk %}">Delete</a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+{%else%}
+<h2>No results!</h2>
+{% endif %}
 {% endif %}
 
 {% include 'includes/page_by_page.html' %}

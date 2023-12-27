@@ -8,51 +8,79 @@ All posts
 {% endblock title %}
 
 {% block content %}
-<h1>All posts</h1>
-<h5>Total posts: {{posts|length}}</h5>
-
+<h2 class="mt-3">All posts</h2>
+<hr class="border border-light border-1 opacity-75">
+<h5>Total posts: {{ page_obj.paginator.count }}</h5>
+<hr class="border border-light border-1 opacity-75 mb-4">
 {% if posts %}
-    <table class="table table-dark table-striped" align="center">
-        <thead>
-            <tr>
-                <th width="400">Heading</th>
-                <th width="150">Published</th>
-                <th width="500">Preview</th>
-                {% if perms.news.change_post or perms.news.add_post %}
-                    <th colspan="2">Actions</th>
-                {% endif %}
-            </tr>
-        </thead>
-        <tbody class="table-group-divider">
-            {% for post in posts %}
-            <tr>
-                <td><a class="link-light text-decoration-none fw-bold " href="{{ post.get_absolute_url }}">{{post.heading|censor}}</a></td>
-                <td>{{post.created|date:'d M Y'}}</td>
-                <td>{{post.text|censor|truncatewords:20}}</td>
-                {% if perms.news.change_post %}
-                <td>
-                    {% if post.type == 'nw' %}
-                        <a class="link-warning text-decoration-none fw-bold" href="{% url 'news_edit' post.pk %}">Change</a>
-                    {% elif post.type == 'ar' %}
-                        <a class="link-warning text-decoration-none fw-bold" href="{% url 'article_edit' post.pk %}">Change</a>
-                    {% endif %}
-                </td>
-                {% endif %}
-                {% if perms.news.delete_post %}
-                <td>
-                    {% if post.type == 'nw' %}
-                        <a class="link-danger text-decoration-none fw-bold" href="{% url 'news_delete' post.pk %}">Delete</a>
-                    {% elif post.type == 'ar' %}
-                        <a class="link-danger text-decoration-none fw-bold" href="{% url 'article_delete' post.pk %}">Delete</a>
-                    {% endif %}
-                </td>
-                {% endif %}
-            </tr>
+    {% for post in posts %}
+    <div class="list-group text-bg-dark border border-light border-2 opacity-75 d-flex mx-auto w-60 mb-2">
+        <div class="list-group-item text-bg-dark border-bottom-0 justify-content-between d-flex">
+            <h4 class="mb-0"><a class="link-salmon text-decoration-none fw-bold" href="{{ post.get_absolute_url }}">{{ post.heading|censor }}</a></h4>
+            <small class="text-bg-dark d-flex border-bottom-0">
+                {{ post.created|date:'d M Y' }}
+            </small>
+        </div>
+        <div class="list-group-item text-bg-dark d-flex justify-content-start border-bottom-0 dropdown small">
+            Categories:{% for cat in post.category.all %}
+            <a class="link-purple text-decoration-none fw-bold ms-2 me-2 dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {{ cat.name }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                    <form action="{% url 'subscriptions' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="category_id" value="{{ cat.id }}" />
+                        {% if cats_with_subscriptions|is_subscribed:cat.id %}
+                            <button class="dropdown-item btn btn-sm btn-dark disabled">You are subscribed to this category</button>
+                            <button name="action" value="unsubscribe" class="dropdown-item btn btn-sm btn-dark">Unsubscribe</button>
+                        {% else %}
+                            <button class="dropdown-item btn btn-sm btn-dark disabled">You are not subscribed to this category</button>
+                            <button name="action" value="subscribe" class="dropdown-item btn btn-sm btn-dark">Subscribe</button>
+                        {% endif %}
+                    </form>
+                </li>
+                <li>
+                    <hr class="dropdown-divider border-light">
+                </li>
+                <li>
+                    <a class="dropdown-item btn btn-sm" href="{% url 'search'%}?category={{ cat.id }}">Search this category</a>
+                </li>
+            </ul>
+            {% if not forloop.last %}
+            |
+            {% endif %}
             {% endfor %}
-        </tbody>
-    </table>
+        </div>
+        <div class="list-group-item text-bg-dark border-bottom-0 d-flex justify-content-start">
+            <p class="text-start mb-0">{{ post.text|censor|truncatewords:50 }}</p>
+        </div>
+        {% if perms.news.change_post or perms.news.delete_post %}
+        <div class="list-group list-group-horizontal text-bg-dark d-flex justify-content-center">
+            {% if perms.news.change_post %}
+            <div class="list-group-item text-bg-dark d-flex justify-content-center border-0">
+                {% if post.type == 'nw' %}
+                    <a class="link-warning text-decoration-none fw-bold" href="{% url 'news_edit' post.pk %}">Change</a>
+                {% elif post.type == 'ar' %}
+                    <a class="link-warning text-decoration-none fw-bold" href="{% url 'article_edit' post.pk %}">Change</a>
+                {% endif %}
+            </div>
+            {% endif %}
+            {% if perms.news.delete_post %}
+            <div class="list-group-item text-bg-dark d-flex justify-content-center border-0">
+                {% if post.type == 'nw' %}
+                    <a class="link-danger text-decoration-none fw-bold" href="{% url 'news_delete' post.pk %}">Delete</a>
+                {% elif post.type == 'ar' %}
+                    <a class="link-danger text-decoration-none fw-bold" href="{% url 'article_delete' post.pk %}">Delete</a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
 {%else%}
-    <h2>Статей нет!</h2>
+    <h2>No posts yet!</h2>
 {% endif %}
 
 {% include 'includes/page_by_page.html' %}

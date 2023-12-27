@@ -18,12 +18,35 @@ class PostsList(ListView):
     context_object_name = 'posts'
     paginate_by = 10
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data()
+        context['cats_with_subscriptions'] = Category.objects.annotate(
+            user_subscribed=Exists(
+                Subscriber.objects.filter(
+                    user=self.request.user,
+                    category=OuterRef('pk'),
+                )
+            )
+        ).order_by('name')
+        return context
+
 
 class PostDetail(DetailView):
     model = Post
     template_name = 'post.html'
     context_object_name = 'post'
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data()
+        context['cats_with_subscriptions'] = Category.objects.annotate(
+            user_subscribed=Exists(
+                Subscriber.objects.filter(
+                    user=self.request.user,
+                    category=OuterRef('pk'),
+                )
+            )
+        ).order_by('name')
+        return context
 
 class PostSearch(ListView):
     model = Post
@@ -40,6 +63,14 @@ class PostSearch(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         context['filterset'] = self.filterset
+        context['cats_with_subscriptions'] = Category.objects.annotate(
+            user_subscribed=Exists(
+                Subscriber.objects.filter(
+                    user=self.request.user,
+                    category=OuterRef('pk'),
+                )
+            )
+        ).order_by('name')
         return context
 
 
@@ -107,6 +138,7 @@ class ArticleDelete(DeleteView):
     def get_queryset(self):
         articles = Post.objects.filter(type=Post.ARTICLE)
         return articles
+
 
 @login_required
 @csrf_protect

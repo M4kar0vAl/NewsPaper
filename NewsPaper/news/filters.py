@@ -1,21 +1,22 @@
-from django.forms import DateTimeInput
-from django_filters import FilterSet, ModelChoiceFilter, CharFilter, DateTimeFilter
+from django.forms import DateTimeInput, TextInput, SelectMultiple
+from django_filters import FilterSet, ModelMultipleChoiceFilter, CharFilter, DateTimeFilter
 from .models import Post, Category
 
 
 class PostFilter(FilterSet):
     heading = CharFilter(
         lookup_expr='iregex',
-        label='Заголовок содержит'
+        label='Заголовок содержит',
+        widget=TextInput(attrs={'class': 'form-control mb-2 mt-2 text-bg-dark'}),
     )
-    category = ModelChoiceFilter(
+    category = ModelMultipleChoiceFilter(
         queryset=Category.objects.all(),
         label='Категория',
-        empty_label='Выберите категорию'
+        widget=SelectMultiple(attrs={'class': 'form-select mb-2 mt-2 text-bg-dark'}),
     )
     created = DateTimeFilter(
         lookup_expr='gt',
-        widget=DateTimeInput({'type': 'date'}),
+        widget=DateTimeInput(attrs={'type': 'date', 'class': 'form-control mb-2 mt-2 text-bg-dark'}),
         label='Опубликовано не раньше',
     )
 

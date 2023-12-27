@@ -2,15 +2,21 @@
 
 {% load custom_filters %}
 
+{% block title %}
+Delete {{ post.heading|censor }}?
+{% endblock %}
+
 {% block content %}
 {% if post.type == 'nw' %}
-    <h1> Удаление новости </h1>
+    <h2 class="mt-3"> Delete News </h2>
 {% elif post.type == 'ar' %}
-    <h1> Удаление статьи </h1>
+    <h2 class="mt-3"> Delete Article </h2>
 {% endif %}
-<h6> Удалить "{{ post.heading|censor }}"? </h6>
+<hr class="border border-light opacity-75">
+<h5> Delete "{{ post.heading|censor }}"? </h5>
+<p style="text-align: justify"> {{ post.text|censor|truncatewords:50 }} </p>
 <form action="" method="post">
     {% csrf_token %}
-    <input type="submit" value="Подтвердить">
+    <input type="submit" class="btn btn-primary mt-3" value="Delete">
 </form>
 {% endblock %}

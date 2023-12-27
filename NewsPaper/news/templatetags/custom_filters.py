@@ -19,3 +19,8 @@ def censor(text):
         text = re.sub(match, f'{match[0] + len(match[1:]) * "*"}', text)
 
     return text
+
+
+@register.filter()
+def is_subscribed(cats_w_subscriptions, cat_id):
+    return cats_w_subscriptions.get(id=cat_id).user_subscribed

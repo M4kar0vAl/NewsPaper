@@ -6751,6 +6751,20 @@ textarea.form-control-lg {
   color: #1a1e21 !important;
 }
 
+.link-purple {
+  color: var(--bs-purple);
+}
+.link-purple:hover, .link-purple:focus {
+  color: var(--bs-pink);
+}
+
+.link-salmon {
+  color: #FFA07A
+}
+.link-salmon:hover, .link-salmon:focus {
+  color: #FA8072
+}
+
 .ratio {
   position: relative;
   width: 100%;
@@ -7263,6 +7277,10 @@ textarea.form-control-lg {
 
 .w-50 {
   width: 50% !important;
+}
+
+.w-60 {
+  width: 60% !important;
 }
 
 .w-75 {

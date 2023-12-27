@@ -3,12 +3,47 @@
 {% load custom_filters %}
 
 {% block title %}
-{{post.heading}}
+{{post.heading|censor}}
 {% endblock title %}
 
 {% block content %}
-<h1>{{post.heading|censor}}</h1>
-<h6>Опубликовано: {{post.created|date:'d M Y'}}</h6>
-<hr>
-<p style="text-align:justify">{{post.text|censor}}</p>
+<h2 class="mt-3 mb-2">{{post.heading|censor}}</h2>
+<div class="text-bg-dark justify-content-between d-flex">
+    <div class="list-group-item text-bg-dark d-flex justify-content-start border-bottom-0 dropdown small">
+        Categories:{% for cat in post.category.all %}
+        <a class="link-purple text-decoration-none fw-bold ms-2 me-2 dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ cat.name }}
+        </a>
+        <ul class="dropdown-menu dropdown-menu-dark">
+            <li>
+                <form action="{% url 'subscriptions' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="category_id" value="{{ cat.id }}" />
+                    {% if cats_with_subscriptions|is_subscribed:cat.id %}
+                        <button class="dropdown-item btn btn-sm btn-dark disabled">You are subscribed to this category</button>
+                        <button name="action" value="unsubscribe" class="dropdown-item btn btn-sm btn-dark">Unsubscribe</button>
+                    {% else %}
+                        <button class="dropdown-item btn btn-sm btn-dark disabled">You are not subscribed to this category</button>
+                        <button name="action" value="subscribe" class="dropdown-item btn btn-sm btn-dark">Subscribe</button>
+                    {% endif %}
+                </form>
+            </li>
+            <li>
+                <hr class="dropdown-divider border-light">
+            </li>
+            <li>
+                <a class="dropdown-item btn btn-sm" href="{% url 'search'%}?category={{ cat.id }}">Search this category</a>
+            </li>
+        </ul>
+        {% if not forloop.last %}
+        |
+        {% endif %}
+        {% endfor %}
+    </div>
+    <small class="text-bg-dark align-self-end">
+        {{ post.created|date:'d M Y' }}
+    </small>
+</div>
+<hr class="border border-1 opacity-75 mt-0">
+<p style="text-align:justify">{{post.text|censor|linebreaksbr}}</p>
 {% endblock content %}
