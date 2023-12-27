@@ -1,3 +1,26 @@
+## 27.12.2023  
+  
+### Added  
+
+- "Clear filters" button on [search](http://127.0.0.1:8000/news/search) page which shows all posts  
+- custom filter "is_subscribed" to check whether the user subscribed on category or not
+
+### Changed  
+  
+- list of posts now shown as divs not table  
+- for each post categories are shown  
+- shown categories are dropdowns with:  
+  - "Subscribe"/"Unsubscribe" button depending on whether user unsubscribed or subscribed to this category  
+  - "Search this category" button which redirects on [search](http://127.0.0.1:8000/news/search) page and applies filter on this category
+- filter on [search](http://127.0.0.1:8000/news/search) page now can filter by multiple categories  
+- forms look better  
+- every post in list of posts now shows 50 words as preview
+
+### Fixed
+
+- newsletter when new post added now works as intended (emails send only when new post created and not when changed existing one)  
+- number of posts shown now takes pagination into account and displays correct value  
+
 ## 22.12.2023  
   
 ### Added  
