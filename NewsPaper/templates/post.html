@@ -11,23 +11,29 @@
 <div class="text-bg-dark justify-content-between d-flex">
     <div class="list-group-item text-bg-dark d-flex justify-content-start border-bottom-0 dropdown small">
         Categories:{% for cat in post.category.all %}
-        <a class="link-purple text-decoration-none fw-bold ms-2 me-2 dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <a class="link-purple text-decoration-none fw-bold ms-2 me-2 dropdown-toggle opacity-75" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             {{ cat.name }}
         </a>
         <ul class="dropdown-menu dropdown-menu-dark">
-            <li>
-                <form action="{% url 'subscriptions' %}" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="category_id" value="{{ cat.id }}" />
-                    {% if cats_with_subscriptions|is_subscribed:cat.id %}
-                        <button class="dropdown-item btn btn-sm btn-dark disabled">You are subscribed to this category</button>
-                        <button name="action" value="unsubscribe" class="dropdown-item btn btn-sm btn-dark">Unsubscribe</button>
-                    {% else %}
-                        <button class="dropdown-item btn btn-sm btn-dark disabled">You are not subscribed to this category</button>
-                        <button name="action" value="subscribe" class="dropdown-item btn btn-sm btn-dark">Subscribe</button>
-                    {% endif %}
-                </form>
-            </li>
+            {% if not request.user.is_authenticated %}
+                <li>
+                    <a class="dropdown-item btn btn-sm" href="{% url 'account_login' %}">Log in to enable subscriptions</a>
+                </li>
+            {% else %}
+                <li>
+                    <form action="{% url 'subscriptions' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="category_id" value="{{ cat.id }}" />
+                        {% if cats_with_subscriptions|is_subscribed:cat.id %}
+                            <button class="dropdown-item btn btn-sm btn-dark disabled">You are subscribed to this category</button>
+                            <button name="action" value="unsubscribe" class="dropdown-item btn btn-sm btn-dark">Unsubscribe</button>
+                        {% else %}
+                            <button class="dropdown-item btn btn-sm btn-dark disabled">You are not subscribed to this category</button>
+                            <button name="action" value="subscribe" class="dropdown-item btn btn-sm btn-dark">Subscribe</button>
+                        {% endif %}
+                    </form>
+                </li>
+            {% endif %}
             <li>
                 <hr class="dropdown-divider border-light">
             </li>

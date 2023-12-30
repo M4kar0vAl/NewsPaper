@@ -5,6 +5,7 @@ from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.cache import cache
 
 from .forms import NewsForm
 from .models import Post, Category, Subscriber
@@ -20,14 +21,15 @@ class PostsList(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data()
-        context['cats_with_subscriptions'] = Category.objects.annotate(
-            user_subscribed=Exists(
-                Subscriber.objects.filter(
-                    user=self.request.user,
-                    category=OuterRef('pk'),
+        if self.request.user.is_authenticated:
+            context['cats_with_subscriptions'] = Category.objects.annotate(
+                user_subscribed=Exists(
+                    Subscriber.objects.filter(
+                        user=self.request.user,
+                        category=OuterRef('pk'),
+                    )
                 )
-            )
-        ).order_by('name')
+            ).order_by('name')
         return context
 
 
@@ -38,15 +40,25 @@ class PostDetail(DetailView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data()
-        context['cats_with_subscriptions'] = Category.objects.annotate(
-            user_subscribed=Exists(
-                Subscriber.objects.filter(
-                    user=self.request.user,
-                    category=OuterRef('pk'),
+        if self.request.user.is_authenticated:
+            context['cats_with_subscriptions'] = Category.objects.annotate(
+                user_subscribed=Exists(
+                    Subscriber.objects.filter(
+                        user=self.request.user,
+                        category=OuterRef('pk'),
+                    )
                 )
-            )
-        ).order_by('name')
+            ).order_by('name')
         return context
+
+    def get_object(self, *args, **kwargs):
+        obj = cache.get(f'post-{self.kwargs["pk"]}', None)
+
+        if not obj:
+            obj = super().get_object()
+            cache.set(f'post-{self.kwargs["pk"]}', obj)
+        return obj
+
 
 class PostSearch(ListView):
     model = Post
@@ -63,14 +75,15 @@ class PostSearch(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         context['filterset'] = self.filterset
-        context['cats_with_subscriptions'] = Category.objects.annotate(
-            user_subscribed=Exists(
-                Subscriber.objects.filter(
-                    user=self.request.user,
-                    category=OuterRef('pk'),
+        if self.request.user.is_authenticated:
+            context['cats_with_subscriptions'] = Category.objects.annotate(
+                user_subscribed=Exists(
+                    Subscriber.objects.filter(
+                        user=self.request.user,
+                        category=OuterRef('pk'),
+                    )
                 )
-            )
-        ).order_by('name')
+            ).order_by('name')
         return context
 
 
@@ -144,6 +157,7 @@ class ArticleDelete(DeleteView):
 @csrf_protect
 def subscriptions(request):
     if request.method == 'POST':
+        cache.delete('cats_w_subs')
         category_id = request.POST.get('category_id')
         category = Category.objects.get(id=category_id)
         action = request.POST.get('action')
@@ -153,14 +167,18 @@ def subscriptions(request):
         elif action == 'unsubscribe':
             Subscriber.objects.filter(user=request.user, category=category).delete()
 
-    categories_with_subscriptions = Category.objects.annotate(
-        user_subscribed=Exists(
-            Subscriber.objects.filter(
-                user=request.user,
-                category=OuterRef('pk'),
+    categories_with_subscriptions = cache.get('cats_w_subs', None)
+    if categories_with_subscriptions is None:
+        categories_with_subscriptions = Category.objects.annotate(
+            user_subscribed=Exists(
+                Subscriber.objects.filter(
+                    user=request.user,
+                    category=OuterRef('pk'),
+                )
             )
-        )
-    ).order_by('name')
+        ).order_by('name')
+        cache.set('cats_w_subs', categories_with_subscriptions)
+
     return render(
         request,
         'subscriptions.html',

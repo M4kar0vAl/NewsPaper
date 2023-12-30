@@ -15,6 +15,8 @@
     </head>
     <body class="text-bg-dark">
         <!-- Responsive navbar-->
+        {% load cache %}
+        {% cache 100 navbar request.user.username %}
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top border-bottom border-2">
            <div class="container">
                <a class="navbar-brand" href="#">News Portal</a>
@@ -72,6 +74,7 @@
                </ul>
            </div>
         </nav>
+        {% endcache %}
         <!-- Page content-->
         <div class="container">
             <div class="row">
