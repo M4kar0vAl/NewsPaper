@@ -1,3 +1,18 @@
+## 30.12.2023
+
+### Added
+
+- filesystem caching for:
+  - [home](http://127.0.0.1:8000/news/) page for 1 min
+  - post detail page until it changes
+  - navbar for logged in users for 100 sec
+  - [subscriptions](http://127.0.0.1:8000/news/subscriptions) page until it changes
+
+### Fixed
+
+- categories dropdown not overlapping next div
+- error that occured when not logged in user tried to get pages with categories dropdowns
+
 ## 27.12.2023  
   
 ### Added  
