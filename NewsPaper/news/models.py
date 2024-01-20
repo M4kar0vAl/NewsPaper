@@ -57,7 +57,7 @@ class Post(models.Model):
         return f'{self.text[:124]}...'
 
     def __str__(self):
-        return f'{self.type}: {self.heading}\n{self.created}'
+        return f'{self.heading}'
 
     def get_absolute_url(self):
         return reverse('post_detail', args=[str(self.id)])
@@ -65,6 +65,7 @@ class Post(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         cache.delete(f'post-{self.pk}')
+
 
 class PostCategory(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='categories')
@@ -85,6 +86,7 @@ class Comment(models.Model):
     def dislike(self):
         self.rating -= 1
         self.save()
+
 
 class Subscriber(models.Model):
     user = models.ForeignKey(

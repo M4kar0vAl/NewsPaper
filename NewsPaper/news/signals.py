@@ -9,6 +9,7 @@ from .tasks import new_post_notification
 def new_post_handler(instance, created, **kwargs):
     instance.is_new = created
 
+
 @receiver(m2m_changed, sender=Post.category.through)
 def post_category_changed(action, instance, **kwargs):
     if action == 'post_add' and instance.is_new:
