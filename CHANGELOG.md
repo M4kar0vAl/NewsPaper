@@ -1,3 +1,14 @@
+## 20.01.2024
+
+### Added
+
+- `deleteposts` command that takes one or more category names as argument and deletes all posts in these categories
+- On admin panel:
+  - models now show more information about their objects
+  - added search and filters to models
+  - added `Update rating` action to Author model
+  - added `Nullify rating` action to Post, Author and Comment models
+
 ## 30.12.2023
 
 ### Added
