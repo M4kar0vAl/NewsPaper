@@ -5,7 +5,7 @@ from .models import Post, Category
 
 class PostFilter(FilterSet):
     heading = CharFilter(
-        lookup_expr='iregex',
+        lookup_expr='icontains',
         label='Заголовок содержит',
         widget=TextInput(attrs={'class': 'form-control mb-2 mt-2 text-bg-dark'}),
     )
