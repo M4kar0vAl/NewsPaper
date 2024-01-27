@@ -1,3 +1,11 @@
+## 27.01.2024
+
+### Changed
+
+- `sqlite3` db --> `PostgreSQL` db
+- moved all data to a new db
+- updated `.env`
+
 ## 20.01.2024
 
 ### Added
