@@ -1,3 +1,17 @@
+## 05.02.2024
+
+### Added
+
+- Logging configuration
+  - if `DEBUG = True`:
+    - messages logged to console
+  - if `DEBUG = False`:
+    - INFO messages logged to file `general.log` and sent to admins email if message level is ERROR or higher
+  - regardless of `DEBUG` setting:
+    - ERROR and higher messages logged to file `errors.log`
+    - security messages logged to file `security.log`
+  - `.log` files live in `logs` directory in project's working directory
+
 ## 27.01.2024
 
 ### Changed
