@@ -1,3 +1,21 @@
+## 17.02.2024
+
+### Added
+
+- Russian localization
+  - language can be set on navbar
+- User's profile (can be accessed via username on navbar)
+- Timezone support (can be set in user'profile)
+
+### Changed
+
+- Permissions reworked
+  - every authenticated user can add post (no changes)
+  - when post was added, author field is autocompleted with current user
+    - if user wasn't an author before, then a record with this user is added to the database Author table
+  - edit or delete posts now can only authors of these posts or users with such permissions (admin, managers, etc)
+- Signup, login and logout basic allauth templates were overriden
+
 ## 05.02.2024
 
 ### Added
