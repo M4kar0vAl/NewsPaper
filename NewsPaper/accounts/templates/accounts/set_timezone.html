@@ -1,0 +1,26 @@
+{% extends 'flatpages/default.html' %}
+
+{% load i18n %}
+{% load tz %}
+
+{% block content %}
+
+{% get_current_timezone as TIME_ZONE %}
+<h6 class="mt-3">{% translate 'Current time zone' %}: {{ TIME_ZONE }}</h6>
+<p>{% translate 'Your current date and time' %}: {% now 'd M Y G:i' %}</p>
+<form action="{% url 'set_timezone' %}" method="post" class="w-25 mx-auto">
+	{% csrf_token %}
+	<div class="row">
+		<label for="timezone" class="text-bg-dark col-form-label fw-bold col-sm-5 my-auto text-end">{% translate 'Time zone' %}:</label>
+		<div class="col-sm-6 px-0">
+			<select name="timezone" class="form-select text-bg-dark">
+			{% for tz in timezones %}
+			<option value="{{ tz }}"{% if tz == TIME_ZONE %} selected{% endif %}>{{ tz }}</option>
+			{% endfor %}
+		</select>
+		</div>
+	</div>
+	<input class="btn btn-primary mt-3" type="submit" value="{% translate 'Apply' %}">
+</form>
+
+{% endblock content %}

@@ -1,22 +1,23 @@
 {% extends 'flatpages/default.html' %}
 
+{% load i18n %}
 {% load custom_filters %}
 
 {% block title %}
-Delete {{ post.heading|censor }}?
+{% translate 'Delete' %} {{ post.heading|censor }}?
 {% endblock %}
 
 {% block content %}
-{% if post.type == 'nw' %}
-    <h2 class="mt-3"> Delete News </h2>
-{% elif post.type == 'ar' %}
-    <h2 class="mt-3"> Delete Article </h2>
+{% if post.type == post.NEWS %}
+    <h2 class="mt-3">{% translate 'Deleting news' %}</h2>
+{% elif post.type == post.ARTICLE %}
+    <h2 class="mt-3">{% translate 'Deleting an article' %}</h2>
 {% endif %}
 <hr class="border border-light opacity-75">
-<h5> Delete "{{ post.heading|censor }}"? </h5>
+<h5>{% translate 'Delete' %} "{{ post.heading|censor }}"? </h5>
 <p style="text-align: justify"> {{ post.text|censor|truncatewords:50 }} </p>
 <form action="" method="post">
     {% csrf_token %}
-    <input type="submit" class="btn btn-primary mt-3" value="Delete">
+    <input type="submit" class="btn btn-primary mt-3" value="{% translate 'Delete' %}">
 </form>
 {% endblock %}

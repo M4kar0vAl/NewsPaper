@@ -1,16 +1,17 @@
 {% extends 'flatpages/default.html'%}
 
+{% load i18n %}
 {% load custom_filters %}
 {% load custom_tags %}
 
 {% block title %}
-All posts
+{% translate 'All posts' %}
 {% endblock title %}
 
 {% block content %}
-<h2 class="mt-3">All posts</h2>
+<h2 class="mt-3">{% translate 'All posts' %}</h2>
 <hr class="border border-light border-1 opacity-75">
-<h5>Total posts: {{ page_obj.paginator.count }}</h5>
+<h5>{% blocktranslate with count=page_obj.paginator.count %}Total posts: {{ count }}{% endblocktranslate %}</h5>
 <hr class="border border-light border-1 opacity-75 mb-4">
 {% if posts %}
     {% for post in posts %}
@@ -21,15 +22,18 @@ All posts
                 {{ post.created|date:'d M Y' }}
             </small>
         </div>
+        <div class="list-group-item text-bg-dark border-bottom-0 d-flex justify-content-start">
+            {% translate 'Author' context 'author of the article' %}: {{ post.author }}
+        </div>
         <div class="list-group-item text-bg-dark d-flex justify-content-start border-bottom-0 dropdown small">
-            Categories:{% for cat in post.category.all %}
+            {% translate 'Categories' %}:{% for cat in post.category.all %}
             <a class="link-purple text-decoration-none fw-bold ms-2 me-2 dropdown-toggle opacity-75" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 {{ cat.name }}
             </a>
             <ul class="dropdown-menu dropdown-menu-dark">
                 {% if not request.user.is_authenticated %}
                     <li>
-                        <a class="dropdown-item btn btn-sm" href="{% url 'account_login' %}">Log in to enable subscriptions</a>
+                        <a class="dropdown-item btn btn-sm" href="{% url 'account_login' %}">{% translate 'Log in to enable subscriptions' %}</a>
                     </li>
                 {% else %}
                 <li>
@@ -37,11 +41,11 @@ All posts
                         {% csrf_token %}
                         <input type="hidden" name="category_id" value="{{ cat.id }}" />
                         {% if cats_with_subscriptions|is_subscribed:cat.id %}
-                            <button class="dropdown-item btn btn-sm btn-dark disabled">You are subscribed to this category</button>
-                            <button name="action" value="unsubscribe" class="dropdown-item btn btn-sm btn-dark">Unsubscribe</button>
+                            <button class="dropdown-item btn btn-sm btn-dark disabled">{% translate 'You are subscribed to this category' %}</button>
+                            <button name="action" value="unsubscribe" class="dropdown-item btn btn-sm btn-dark">{% translate 'Unsubscribe' %}</button>
                         {% else %}
-                            <button class="dropdown-item btn btn-sm btn-dark disabled">You are not subscribed to this category</button>
-                            <button name="action" value="subscribe" class="dropdown-item btn btn-sm btn-dark">Subscribe</button>
+                            <button class="dropdown-item btn btn-sm btn-dark disabled">{% translate 'You are not subscribed to this category' %}</button>
+                            <button name="action" value="subscribe" class="dropdown-item btn btn-sm btn-dark">{% translate 'Subscribe' %}</button>
                         {% endif %}
                     </form>
                 </li>
@@ -50,7 +54,7 @@ All posts
                     <hr class="dropdown-divider border-light">
                 </li>
                 <li>
-                    <a class="dropdown-item btn btn-sm" href="{% url 'search'%}?category={{ cat.id }}">Search this category</a>
+                    <a class="dropdown-item btn btn-sm" href="{% url 'search'%}?category={{ cat.id }}">{% translate 'Search this category' %}</a>
                 </li>
             </ul>
             {% if not forloop.last %}
@@ -61,23 +65,23 @@ All posts
         <div class="list-group-item text-bg-dark border-bottom-0 d-flex justify-content-start">
             <p class="text-start mb-0">{{ post.text|censor|truncatewords:50 }}</p>
         </div>
-        {% if perms.news.change_post or perms.news.delete_post %}
+        {% if perms.news.change_post or perms.news.delete_post or post.is_owner %}
         <div class="list-group list-group-horizontal text-bg-dark d-flex justify-content-center">
-            {% if perms.news.change_post %}
+            {% if perms.news.change_post or post.is_owner %}
             <div class="list-group-item text-bg-dark d-flex justify-content-center border-0">
-                {% if post.type == 'nw' %}
-                    <a class="link-warning text-decoration-none fw-bold opacity-75" href="{% url 'news_edit' post.pk %}">Change</a>
-                {% elif post.type == 'ar' %}
-                    <a class="link-warning text-decoration-none fw-bold opacity-75" href="{% url 'article_edit' post.pk %}">Change</a>
+                {% if post.type == post.NEWS %}
+                    <a class="link-warning text-decoration-none fw-bold opacity-75" href="{% url 'news_edit' post.pk %}">{% translate 'Change' %}</a>
+                {% elif post.type == post.ARTICLE %}
+                    <a class="link-warning text-decoration-none fw-bold opacity-75" href="{% url 'article_edit' post.pk %}">{% translate 'Change' %}</a>
                 {% endif %}
             </div>
             {% endif %}
-            {% if perms.news.delete_post %}
+            {% if perms.news.delete_post or post.is_owner %}
             <div class="list-group-item text-bg-dark d-flex justify-content-center border-0">
-                {% if post.type == 'nw' %}
-                    <a class="link-danger text-decoration-none fw-bold opacity-75" href="{% url 'news_delete' post.pk %}">Delete</a>
-                {% elif post.type == 'ar' %}
-                    <a class="link-danger text-decoration-none fw-bold opacity-75" href="{% url 'article_delete' post.pk %}">Delete</a>
+                {% if post.type == post.NEWS %}
+                    <a class="link-danger text-decoration-none fw-bold opacity-75" href="{% url 'news_delete' post.pk %}">{% translate 'Delete' %}</a>
+                {% elif post.type == post.ARTICLE %}
+                    <a class="link-danger text-decoration-none fw-bold opacity-75" href="{% url 'article_delete' post.pk %}">{% translate 'Delete' %}</a>
                 {% endif %}
             </div>
             {% endif %}
@@ -86,9 +90,11 @@ All posts
     </div>
     {% endfor %}
 {%else%}
-    <h2>No posts yet!</h2>
+    <h2>{% translate 'No posts yet!' context 'No articles yet' %}</h2>
 {% endif %}
 
+{% if paginator.num_pages > 1 %}
 {% include 'includes/page_by_page.html' %}
+{% endif %}
 
 {% endblock content %}

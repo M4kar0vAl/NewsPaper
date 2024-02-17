@@ -1,0 +1,76 @@
+openapi: 3.1.0
+info:
+  title: 'News Portal API'
+  version: "0.1"
+servers:
+  - url: http://127.0.0.1:8000/
+paths:
+  /news/:
+    get:
+      operationId: listPosts
+      description: 'List of posts'
+      parameters: []
+      responses:
+        '200':
+          content:
+          application/json:
+            schema:
+              type: array
+              items:
+                  $ref: '#/components/schemas/Post'
+          description: ''
+      tags:
+        - posts
+  /news/news/create/:
+    post:
+      operationId: createNews
+      description: 'Create News'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+              description: ''
+  /news/articles/create/:
+    post:
+      operationId: createArticle
+      description: 'Create Article'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+              description: ''
+components:
+  schemas:
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        heading:
+          type: string
+        text:
+          type: string
+        created:
+          type: string
+          format: date-time
+          readonly: true
+        category:
+          type: integer
+      required:
+        - title
+        - text

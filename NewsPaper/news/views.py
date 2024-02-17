@@ -1,14 +1,15 @@
 from django.contrib.auth.decorators import login_required
-from django.db.models import Exists, OuterRef
+from django.db.models import Exists, OuterRef, Value
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin, UserPassesTestMixin
 from django.core.cache import cache
+from django.core.exceptions import ObjectDoesNotExist
 
 from .forms import NewsForm
-from .models import Post, Category, Subscriber
+from .models import Post, Category, Subscriber, Author
 from .filters import PostFilter
 
 
@@ -31,6 +32,14 @@ class PostsList(ListView):
                 )
             ).order_by('name')
         return context
+
+    def get_queryset(self):
+        posts = super().get_queryset()
+        if self.request.user.is_authenticated and Author.objects.filter(user=self.request.user).exists():
+            posts = posts.annotate(is_owner=Exists(posts.filter(pk=OuterRef('pk'), author=self.request.user.author)))
+        else:
+            posts = posts.annotate(is_owner=Value(False))
+        return posts
 
 
 class PostDetail(DetailView):
@@ -57,6 +66,8 @@ class PostDetail(DetailView):
         if not obj:
             obj = super().get_object()
             cache.set(f'post-{self.kwargs["pk"]}', obj)
+
+        obj.is_owner = self.request.user == obj.author.user
         return obj
 
 
@@ -70,7 +81,15 @@ class PostSearch(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         self.filterset = PostFilter(self.request.GET, queryset)
-        return self.filterset.qs if self.request.GET else Post.objects.none()
+        filtered_posts = self.filterset.qs
+        if self.request.GET:
+            if self.request.user.is_authenticated and Author.objects.filter(user=self.request.user).exists():
+                filtered_posts = filtered_posts.annotate(is_owner=Exists(filtered_posts.filter(pk=OuterRef('pk'), author=self.request.user.author)))
+            else:
+                filtered_posts = filtered_posts.annotate(is_owner=Value(False))
+            return filtered_posts
+        else:
+            return Post.objects.none()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
@@ -94,8 +113,13 @@ class NewsCreate(PermissionRequiredMixin, CreateView):
     template_name = 'news_create.html'
 
     def form_valid(self, form):
+        try:
+            author = Author.objects.get(user=self.request.user)
+        except ObjectDoesNotExist:
+            author = Author.objects.create(user=self.request.user)
         news = form.save(commit=False)
         news.type = Post.NEWS
+        news.author = author
         return super().form_valid(form)
 
 
@@ -106,47 +130,87 @@ class ArticleCreate(PermissionRequiredMixin, CreateView):
     template_name = 'article_create.html'
 
     def form_valid(self, form):
+        try:
+            author = Author.objects.get(user=self.request.user)
+        except ObjectDoesNotExist:
+            author = Author.objects.create(user=self.request.user)
         article = form.save(commit=False)
         article.type = Post.ARTICLE
+        article.author = author
         return super().form_valid(form)
 
 
-class NewsUpdate(PermissionRequiredMixin, UpdateView):
+class NewsUpdate(UserPassesTestMixin, PermissionRequiredMixin, UpdateView):
     permission_required = ('news.change_post',)
     form_class = NewsForm
     model = Post
     template_name = 'post_edit.html'
+    
+    def test_func(self):
+        if self.request.user == self.get_object().author.user:
+            self.permission_required = ()
+            return True
+        elif self.request.user.has_perms(self.permission_required):
+            return True
+        return False
+
 
     def get_queryset(self):
         news = Post.objects.filter(type=Post.NEWS)
         return news
 
 
-class ArticleUpdate(PermissionRequiredMixin, UpdateView):
+class ArticleUpdate(UserPassesTestMixin, PermissionRequiredMixin, UpdateView):
     permission_required = ('news.change_post',)
     form_class = NewsForm
     model = Post
     template_name = 'post_edit.html'
+
+    def test_func(self):
+        if self.request.user == self.get_object().author.user:
+            self.permission_required = ()
+            return True
+        elif self.request.user.has_perms(self.permission_required):
+            return True
+        return False
 
     def get_queryset(self):
         articles = Post.objects.filter(type=Post.ARTICLE)
         return articles
 
 
-class NewsDelete(DeleteView):
+class NewsDelete(UserPassesTestMixin, PermissionRequiredMixin, DeleteView):
+    permission_required = ('news.delete_post',)
     model = Post
     template_name = 'post_delete.html'
     success_url = reverse_lazy('post_list')
+
+    def test_func(self):
+        if self.request.user == self.get_object().author.user:
+            self.permission_required = ()
+            return True
+        elif self.request.user.has_perms(self.permission_required):
+            return True
+        return False
 
     def get_queryset(self):
         news = Post.objects.filter(type=Post.NEWS)
         return news
 
 
-class ArticleDelete(DeleteView):
+class ArticleDelete(UserPassesTestMixin, PermissionRequiredMixin, DeleteView):
+    permission_required = ('news.delete_post',)
     model = Post
     template_name = 'post_delete.html'
     success_url = reverse_lazy('post_list')
+
+    def test_func(self):
+        if self.request.user == self.get_object().author.user:
+            self.permission_required = ()
+            return True
+        elif self.request.user.has_perms(self.permission_required):
+            return True
+        return False
 
     def get_queryset(self):
         articles = Post.objects.filter(type=Post.ARTICLE)

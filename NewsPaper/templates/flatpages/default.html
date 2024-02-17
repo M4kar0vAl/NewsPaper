@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+{% load i18n %}
+{% load custom_filters %}
 <html lang="en" xmlns="http://www.w3.org/1999/html">
     <head>
         <meta charset="utf-8" />
@@ -13,13 +15,17 @@
         {% load static %}
         <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
     </head>
+    {% now 'G' as current_hour %}
+    {% comment %}
+    class="{% if current_hour|to_int >= 19 or current_hour|to_int <= 7 %}text-bg-dark{% else %}{% endif %}" for switching theme depending on current time
+    {% endcomment %}
     <body class="text-bg-dark">
         <!-- Responsive navbar-->
         {% load cache %}
         {% cache 100 navbar request.user.username %}
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top border-bottom border-2">
            <div class="container">
-               <a class="navbar-brand" href="#">News Portal</a>
+               <a class="navbar-brand" href="{% url 'post_list' %}">{% translate 'News Portal' %}</a>
                <button class="navbar-toggler" type="button" data-toggle="collapse"
                        data-target="#navbarResponsive"
                        aria-controls="navbarResponsive" aria-expanded="false"
@@ -29,46 +35,64 @@
                <div class="collapse navbar-collapse" id="navbarResponsive">
                    <ul class="navbar-nav ml-auto">
                        <li class="nav-item active">
-                           <a class="nav-link fw-bold" href="{% url 'post_list' %}">Home
-                               <span class="sr-only">(current)</span>
+                           <a class="nav-link fw-bold" href="{% url 'post_list' %}">{% translate 'Home' context 'homepage' %}
                            </a>
                        </li>
                        <li class="nav-item">
-                           <a class="nav-link fw-bold" href="{% url 'search' %}">Search</a>
+                           <a class="nav-link fw-bold" href="{% url 'search' %}">{% translate 'Search' %}</a>
                        </li>
                        <li class="nav-item">
-                           <a class="nav-link fw-bold" href="{% url 'subscriptions' %}">Subscriptions</a>
+                           <a class="nav-link fw-bold" href="{% url 'subscriptions' %}">{% translate 'Subscriptions' %}</a>
                        </li>
                        <li class="nav-item">
-                           <a class="nav-link fw-bold" href="/about/">About</a>
+                           <a class="nav-link fw-bold" href="/about/">{% translate 'About' context 'about website' %}</a>
                        </li>
                        <li class="nav-item">
-                           <a class="nav-link fw-bold" href="/contacts/">Contact</a>
+                           <a class="nav-link fw-bold" href="/contacts/">{% translate 'Contact' context 'contact with website team' %}</a>
                        </li>
                        {% if perms.news.add_post %}
                            <li class="nav-item dropdown">
                                <button class="btn btn-dark dropdown-toggle fw-bold" data-bs-toggle="dropdown" aria-expanded="false">
-                                   Add
+                                   {% translate 'Add' %}
                                </button>
                                <ul class="dropdown-menu dropdown-menu-dark">
-                                   <li><a class="dropdown-item" href="{% url 'article_create' %}">Article</a></li>
-                                   <li><a class="dropdown-item" href="{% url 'news_create' %}">News</a></li>
+                                   <li><a class="dropdown-item" href="{% url 'article_create' %}">{% translate 'Article' %}</a></li>
+                                   <li><a class="dropdown-item" href="{% url 'news_create' %}">{% translate 'News' %}</a></li>
                                </ul>
                            </li>
                        {% endif %}
                    </ul>
                </div>
                <ul class="nav navbar-nav me-auto">
+                   <!-- Language selection-->
+                   <li class="nav-item me-3 mt-1">
+                       <form action="{% url 'set_language' %}" method="post" class="row border border-1">
+                           {% csrf_token %}
+                           <select name="language" class="form-select form-select-sm text-bg-dark col border-end-1 border-start-0 border-top-0 border-bottom-0" style="width:120px;">
+                               {% get_current_language as LANGUAGE_CODE %}
+                               {% get_available_languages as LANGUAGES %}
+                               {% get_language_info_list for LANGUAGES as languages %}
+                               {% for language in languages %}
+                               <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                                   {{ language.name_local }} ({{ language.code }})
+                               </option>
+                               {% endfor %}
+                           </select>
+                           <input class="btn btn-sm btn-dark col mx-auto border-start-1" style="width:fit-content;" type="submit" value="{% translate 'Apply' %}">
+                       </form>
+                   </li>
                    <li class="nav-item active">
-                       {% if not user.is_authenticated %}
-                           <a class="nav-link fw-bold" href="{% url 'account_signup' %}">Sign up</a>
+                       {% if user.is_authenticated %}
+                           <a class="nav-link fw-bold" href="{% url 'profile' %}">{{ user.username }}</a>
+                       {% else %}
+                           <a class="nav-link fw-bold" href="{% url 'account_signup' %}">{% translate 'Registration' %}</a>
                        {% endif %}
                    </li>
                    <li class="nav-item active">
                        {% if user.is_authenticated %}
-                           <a class="nav-link fw-bold" href="{% url 'account_logout' %}">Log out</a>
+                           <a class="nav-link fw-bold" href="{% url 'account_logout' %}">{% translate 'Log out' %}</a>
                        {% else %}
-                           <a class="nav-link fw-bold" href="{% url 'account_login' %}">Log in</a>
+                           <a class="nav-link fw-bold" href="{% url 'account_login' %}">{% translate 'Log in' %}</a>
                        {% endif %}
                    </li>
                </ul>

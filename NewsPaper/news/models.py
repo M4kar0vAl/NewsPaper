@@ -4,11 +4,13 @@ from django.db.models import Sum
 from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.core.cache import cache
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 
 class Author(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    rating = models.IntegerField(default=0)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name=_('username'))
+    rating = models.IntegerField(default=0, verbose_name=_('rating'))
 
     def update_rating(self):
         post_rating = Post.objects.filter(author=self).aggregate(pr=Coalesce(Sum('rating'), 0))['pr']
@@ -22,7 +24,7 @@ class Author(models.Model):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=200, unique=True)
+    name = models.CharField(max_length=200, unique=True, verbose_name=pgettext_lazy('category name', 'name'))
 
     def __str__(self):
         return f'{self.name}'
@@ -32,18 +34,19 @@ class Post(models.Model):
     ARTICLE = 'ar'
     NEWS = 'nw'
     TYPE = [
-        (ARTICLE, 'Article'),
-        (NEWS, 'News')
+        (ARTICLE, _('Article')),
+        (NEWS, _('News'))
     ]
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, verbose_name=_('author'))
     type = models.CharField(max_length=2,
                             choices=TYPE,
-                            default=NEWS)
-    created = models.DateTimeField(auto_now_add=True)
-    category = models.ManyToManyField(Category, through='PostCategory')
-    heading = models.CharField(max_length=200)
-    text = models.TextField()
-    rating = models.IntegerField(default=0)
+                            default=NEWS,
+                            verbose_name=_('type'))
+    created = models.DateTimeField(auto_now_add=True, verbose_name=_('published'))
+    category = models.ManyToManyField(Category, through='PostCategory', verbose_name=_('category'))
+    heading = models.CharField(max_length=200, verbose_name=_('heading'))
+    text = models.TextField(verbose_name=pgettext_lazy('content of the article', 'content'))
+    rating = models.IntegerField(default=0, verbose_name=_('rating'))
 
     def like(self):
         self.rating += 1
@@ -73,11 +76,12 @@ class PostCategory(models.Model):
 
 
 class Comment(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    text = models.TextField()
-    created = models.DateTimeField(auto_now_add=True)
-    rating = models.IntegerField(default=0)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE,
+                             verbose_name=pgettext_lazy('article posted on the website', 'post'))
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
+    text = models.TextField(verbose_name=pgettext_lazy('comment text', 'text'))
+    created = models.DateTimeField(auto_now_add=True, verbose_name=_('published'))
+    rating = models.IntegerField(default=0, verbose_name=_('rating'))
 
     def like(self):
         self.rating += 1
@@ -93,9 +97,11 @@ class Subscriber(models.Model):
         to=User,
         on_delete=models.CASCADE,
         related_name='subscriptions',
+        verbose_name=_('user')
     )
     category = models.ForeignKey(
         to=Category,
         on_delete=models.CASCADE,
-        related_name='subscriptions'
+        related_name='subscriptions',
+        verbose_name=_('category')
     )

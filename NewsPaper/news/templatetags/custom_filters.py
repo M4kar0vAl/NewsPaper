@@ -24,3 +24,11 @@ def censor(text):
 @register.filter()
 def is_subscribed(cats_w_subscriptions, cat_id):
     return cats_w_subscriptions.get(id=cat_id).user_subscribed
+
+@register.filter()
+def to_int(value):
+    try:
+        value = int(value)
+        return value
+    except ValueError:
+        return None

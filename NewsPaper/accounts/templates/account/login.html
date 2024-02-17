@@ -1,0 +1,33 @@
+{% extends 'flatpages/default.html' %}
+{% load i18n %}
+{% block title %}
+{% translate 'Log in' %}
+{% endblock %}
+{% block content %}
+<h2 class="my-3">{% translate 'Log in' %}</h2>
+<form action="" method="post" class="w-50 mx-auto">
+{% csrf_token %}
+{% for f in form %}
+{% if not forloop.last %}
+<div class="text-bg-dark row justify-content-center">
+    <label for="{{ f.id_for_label }}" class="col-sm-2 my-auto text-bg-dark col-form-label fw-bold text-center">{{ f.label }}</label>
+    <div class="col-sm-6">
+        {{ f }}
+    </div>
+</div>
+{% else %}
+    <div class="text-bg-dark row justify-content-center">
+    <label for="{{ f.id_for_label }}" class="col-sm-3 my-auto text-bg-dark col-form-label fw-bold text-center">{{ f.label }}</label>
+    <div class="col-sm-1 d-flex">
+        {{ f }}
+    </div>
+</div>
+{% endif %}
+<div class="invalid-feedback">
+    {{ f.errors }}
+</div>
+{% endfor %}
+<input class="btn btn-primary mt-3" type="submit" value="{% translate 'Log in' %}">
+</form>
+{% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
+{% endblock %}

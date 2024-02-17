@@ -4,7 +4,17 @@
 <h1>Signup html</h1>
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
+    {% for f in form %}
+	    <div class="text-bg-dark row justify-content-center">
+	        <label for="{{ f.id_for_label }}" class="col-sm-1 my-auto text-bg-dark col-form-label fw-bold text-end">{{ f.label }}</label>
+	        <div class="col-sm-4">
+	            {{ f }}
+	        </div>
+	    </div>
+	    <div class="invalid-feedback">
+	        {{ f.errors }}
+	    </div>
+	    {% endfor %}
     <input type="submit" value="Sign up">
 </form>
 

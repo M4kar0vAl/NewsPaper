@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Post, Category, Author, Comment, Subscriber
+from modeltranslation.admin import TranslationAdmin
 
 
 def nullify_rating(modeladmin, request, queryset):
@@ -14,6 +15,10 @@ class PostAdmin(admin.ModelAdmin):
     list_filter = ('author', 'rating', 'type', 'created', 'category__name')
     search_fields = ('author__user__username', 'heading', 'text', 'category__name')
     actions = [nullify_rating]
+
+
+class PostTranslatedAdmin(PostAdmin, TranslationAdmin):
+    pass
 
 
 class AuthorAdmin(admin.ModelAdmin):
@@ -34,6 +39,10 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
+class CategoryTranslatedAdmin(CategoryAdmin, TranslationAdmin):
+    pass
+
+
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('post', 'user', 'rating', 'created')
     list_filter = ('user', 'rating', 'created')
@@ -47,8 +56,8 @@ class SubscriberAdmin(admin.ModelAdmin):
     search_fields = ('category__name', 'user__username')
 
 
-admin.site.register(Post, PostAdmin)
-admin.site.register(Category, CategoryAdmin)
+admin.site.register(Post, PostTranslatedAdmin)
+admin.site.register(Category, CategoryTranslatedAdmin)
 admin.site.register(Author, AuthorAdmin)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Subscriber, SubscriberAdmin)

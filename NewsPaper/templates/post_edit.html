@@ -1,10 +1,12 @@
 {% extends 'flatpages/default.html' %}
 
+{% load i18n %}
+
 {% block content %}
-{% if post.type == 'nw' %}
-    <h2 class="mt-3"> Change News </h2>
-{% elif post.type == 'ar' %}
-    <h2 class="mt-3"> Change Article </h2>
+{% if post.type == post.NEWS %}
+    <h2 class="mt-3">{% translate 'News editing' %}</h2>
+{% elif post.type == post.ARTICLE %}
+    <h2 class="mt-3">{% translate 'Article editing' %}</h2>
 {% endif %}
 <hr class="border borer-light borer-1 opacity-75 mt-3 mb-3">
 <form action="" method="post">
@@ -20,6 +22,6 @@
         {{ f.errors }}
     </div>
     {% endfor %}
-    <input class="btn btn-primary mt-3" type="submit" value="Save Changes">
+    <input class="btn btn-primary mt-3" type="submit" value="{% translate 'Save changes' %}">
 </form>
 {% endblock %}

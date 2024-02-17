@@ -1,5 +1,6 @@
 {% extends 'flatpages/default.html'%}
 
+{% load i18n %}
 {% load custom_filters %}
 
 {% block title %}
@@ -10,14 +11,14 @@
 <h2 class="mt-3 mb-2">{{post.heading|censor}}</h2>
 <div class="text-bg-dark justify-content-between d-flex">
     <div class="list-group-item text-bg-dark d-flex justify-content-start border-bottom-0 dropdown small">
-        Categories:{% for cat in post.category.all %}
+        {% translate 'Categories' %}:{% for cat in post.category.all %}
         <a class="link-purple text-decoration-none fw-bold ms-2 me-2 dropdown-toggle opacity-75" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             {{ cat.name }}
         </a>
         <ul class="dropdown-menu dropdown-menu-dark">
             {% if not request.user.is_authenticated %}
                 <li>
-                    <a class="dropdown-item btn btn-sm" href="{% url 'account_login' %}">Log in to enable subscriptions</a>
+                    <a class="dropdown-item btn btn-sm" href="{% url 'account_login' %}">{% translate 'Log in to enable subscriptions' %}</a>
                 </li>
             {% else %}
                 <li>
@@ -25,11 +26,11 @@
                         {% csrf_token %}
                         <input type="hidden" name="category_id" value="{{ cat.id }}" />
                         {% if cats_with_subscriptions|is_subscribed:cat.id %}
-                            <button class="dropdown-item btn btn-sm btn-dark disabled">You are subscribed to this category</button>
-                            <button name="action" value="unsubscribe" class="dropdown-item btn btn-sm btn-dark">Unsubscribe</button>
+                            <button class="dropdown-item btn btn-sm btn-dark disabled">{% translate 'You are subscribed to this category' %}</button>
+                            <button name="action" value="unsubscribe" class="dropdown-item btn btn-sm btn-dark">{% translate 'Unsubscribe' %}</button>
                         {% else %}
-                            <button class="dropdown-item btn btn-sm btn-dark disabled">You are not subscribed to this category</button>
-                            <button name="action" value="subscribe" class="dropdown-item btn btn-sm btn-dark">Subscribe</button>
+                            <button class="dropdown-item btn btn-sm btn-dark disabled">{% translate 'You are not subscribed to this category' %}</button>
+                            <button name="action" value="subscribe" class="dropdown-item btn btn-sm btn-dark">{% translate 'Subscribe' %}</button>
                         {% endif %}
                     </form>
                 </li>
@@ -38,7 +39,7 @@
                 <hr class="dropdown-divider border-light">
             </li>
             <li>
-                <a class="dropdown-item btn btn-sm" href="{% url 'search'%}?category={{ cat.id }}">Search this category</a>
+                <a class="dropdown-item btn btn-sm" href="{% url 'search'%}?category={{ cat.id }}">{% translate 'Search this category' %}</a>
             </li>
         </ul>
         {% if not forloop.last %}
@@ -52,4 +53,16 @@
 </div>
 <hr class="border border-1 opacity-75 mt-0">
 <p style="text-align:justify">{{post.text|censor|linebreaksbr}}</p>
+{% if perms.news.change_post or perms.news.delete_post or post.is_owner %}
+<hr class="border border-1 opacity-75">
+<h5>{% translate 'Actions' %}</h5>
+<hr class="border border-1 opacity-75">
+<div class="row w-25 mx-auto">
+{% if perms.news.change_post or post.is_owner %}
+<a class="link-warning text-decoration-none fw-bold fs-5 col" href="{% if post.type == post.NEWS %}{% url 'news_edit' post.pk %}{% elif post.type == post.ARTICLE %}{% url 'article_edit' post.pk %}{% endif %}">{% translate 'Edit' %}</a>
+{% endif %}
+{% if perms.news.delete_post or post.is_owner %}
+<a class="link-danger text-decoration-none fw-bold fs-5 col" href="{% if post.type == post.NEWS %}{% url 'news_delete' post.pk %}{% elif post.type == post.ARTICLE %}{% url 'article_delete' post.pk %}{% endif %}">{% translate 'Delete' %}</a>
+{% endif %}
+{% endif %}
 {% endblock content %}
