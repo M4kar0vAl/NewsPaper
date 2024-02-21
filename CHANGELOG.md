@@ -1,3 +1,20 @@
+## 21.02.2024
+
+### Added
+
+- Integrated Django REST framework. Provides:
+  - getting list of news or articles
+  - creating, updating, deleting news or articles
+  - session-based authentication
+  - permissions:
+    - unauthorized users can get list of news or articles
+    - authencicated users can create news and articles
+    - owners can update and delete posts
+  - filtering posts
+  - ordering posts
+  - pagination
+- Swagger documentation provides the same as DRF except authentication
+
 ## 17.02.2024
 
 ### Added
