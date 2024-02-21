@@ -7,10 +7,17 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.mixins import PermissionRequiredMixin, UserPassesTestMixin
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.viewsets import ModelViewSet
 
 from .forms import NewsForm
 from .models import Post, Category, Subscriber, Author
 from .filters import PostFilter
+from .permissions import IsOwnerOrReadOnly
+from .serializers import PostSerializer
 
 
 class PostsList(ListView):
@@ -84,7 +91,8 @@ class PostSearch(ListView):
         filtered_posts = self.filterset.qs
         if self.request.GET:
             if self.request.user.is_authenticated and Author.objects.filter(user=self.request.user).exists():
-                filtered_posts = filtered_posts.annotate(is_owner=Exists(filtered_posts.filter(pk=OuterRef('pk'), author=self.request.user.author)))
+                filtered_posts = filtered_posts.annotate(
+                    is_owner=Exists(filtered_posts.filter(pk=OuterRef('pk'), author=self.request.user.author)))
             else:
                 filtered_posts = filtered_posts.annotate(is_owner=Value(False))
             return filtered_posts
@@ -145,7 +153,7 @@ class NewsUpdate(UserPassesTestMixin, PermissionRequiredMixin, UpdateView):
     form_class = NewsForm
     model = Post
     template_name = 'post_edit.html'
-    
+
     def test_func(self):
         if self.request.user == self.get_object().author.user:
             self.permission_required = ()
@@ -153,7 +161,6 @@ class NewsUpdate(UserPassesTestMixin, PermissionRequiredMixin, UpdateView):
         elif self.request.user.has_perms(self.permission_required):
             return True
         return False
-
 
     def get_queryset(self):
         news = Post.objects.filter(type=Post.NEWS)
@@ -248,3 +255,75 @@ def subscriptions(request):
         'subscriptions.html',
         {'categories': categories_with_subscriptions},
     )
+
+
+class PostAPIListPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
+
+
+class NewsViewSet(ModelViewSet):
+    queryset = Post.objects.filter(type=Post.NEWS)
+    serializer_class = PostSerializer
+    pagination_class = PostAPIListPagination
+    filter_backends = [filters.OrderingFilter, DjangoFilterBackend]
+    ordering_fields = ['created', 'rating']
+    ordering = ['-created']
+    filterset_class = PostFilter
+
+    def get_permissions(self):
+        if self.request.user.is_staff:
+            self.permission_classes = [IsAuthenticated]
+            return [permission() for permission in self.permission_classes]
+        if self.action == 'list':
+            self.permission_classes = [AllowAny]
+        elif self.action == 'create':
+            self.permission_classes = [IsAuthenticated]
+        elif self.action in ('retrieve', 'update', 'partial_update', 'destroy'):
+            self.permission_classes = [IsOwnerOrReadOnly]
+        return [permission() for permission in self.permission_classes]
+
+    def perform_create(self, serializer):
+        try:
+            author = Author.objects.get(user=self.request.user)
+        except ObjectDoesNotExist:
+            author = Author.objects.create(user=self.request.user)
+        kwargs = {
+            'author': author,
+            'type': Post.NEWS
+        }
+        serializer.save(**kwargs)
+
+
+class ArticleViewSet(ModelViewSet):
+    queryset = Post.objects.filter(type=Post.ARTICLE).order_by('-created')
+    serializer_class = PostSerializer
+    pagination_class = PostAPIListPagination
+    filter_backends = [filters.OrderingFilter, DjangoFilterBackend]
+    ordering_fields = ['created', 'rating']
+    ordering = ['-created']
+    filterset_class = PostFilter
+
+    def get_permissions(self):
+        if self.request.user.is_staff:
+            self.permission_classes = [IsAuthenticated]
+            return [permission() for permission in self.permission_classes]
+        if self.action == 'list':
+            self.permission_classes = [AllowAny]
+        elif self.action == 'create':
+            self.permission_classes = [IsAuthenticated]
+        elif self.action in ('retrieve', 'update', 'partial_update', 'destroy'):
+            self.permission_classes = [IsOwnerOrReadOnly]
+        return [permission() for permission in self.permission_classes]
+
+    def perform_create(self, serializer):
+        try:
+            author = Author.objects.get(user=self.request.user)
+        except ObjectDoesNotExist:
+            author = Author.objects.create(user=self.request.user)
+        kwargs = {
+            'author': author,
+            'type': Post.ARTICLE
+        }
+        serializer.save(**kwargs)

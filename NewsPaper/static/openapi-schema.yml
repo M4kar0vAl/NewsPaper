@@ -1,17 +1,56 @@
-openapi: 3.1.0
+openapi: 3.0.2
 info:
   title: 'News Portal API'
   version: "0.1"
 servers:
   - url: http://127.0.0.1:8000/
 paths:
-  /news/:
+  /api/news/:
     get:
-      operationId: listPosts
-      description: 'List of posts'
-      parameters: []
+      operationId: listNews
+      description: 'List of news'
+      parameters:
+        - name: page
+          required: false
+          in: query
+          description: 'Number o page'
+          schema:
+            type: integer
+        - name: page_size
+          required: false
+          in: query
+          description: 'Number of News to return per page (maximum 1000)'
+          schema:
+            type: integer
+        - name: heading
+          required: false
+          in: query
+          description: 'Title contains (case-insensitive)'
+          schema:
+            type: string
+        - name: category
+          required: false
+          in: query
+          description: 'Categories'
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: created
+          required: false
+          in: query
+          description: 'Published later than (format: YYYY-MM-DD)'
+          schema:
+            type: string
+            format: date-time
+        - name: ordering
+          required: false
+          in: query
+          description: 'Order by (use "-" prefix to order descending). Available fields: "created", "rating"'
+          schema:
+            type: string
       responses:
-        '200':
+        200:
           content:
           application/json:
             schema:
@@ -20,39 +59,274 @@ paths:
                   $ref: '#/components/schemas/Post'
           description: ''
       tags:
-        - posts
-  /news/news/create/:
+        - news
     post:
       operationId: createNews
-      description: 'Create News'
+      description: 'Create news'
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Post'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Post'
       responses:
-        '201':
+        201:
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Post'
-              description: ''
-  /news/articles/create/:
+      tags:
+        - news instance
+  /api/news/{id}/:
+    get:
+      operationId: detailNews
+      description: 'News detail'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 'A unique integer value identifying this News.'
+          schema:
+            type: integer
+      responses:
+        200:
+          content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+      tags:
+        - news instance
+    put:
+      operationId: editNews
+      description: 'News editing'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 'A unique integer value identifying this News.'
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Post'
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+      tags:
+        - news instance
+    patch:
+      operationId: partialUpdateNews
+      description: 'Partial News editing'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 'A unique integer value identifying this News.'
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostProperties'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PostProperties'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+          description: 'Successfully updated'
+      tags:
+        - news instance
+    delete:
+      operationId: deleteNews
+      description: 'News deleting'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 'A unique integer value identifying this News.'
+          schema:
+            type: integer
+      responses:
+        204:
+          description: 'Successfully deleted'
+      tags:
+        - news instance
+  /api/articles/:
+    get:
+      operationId: listArticles
+      description: 'List of articles'
+      parameters:
+        - name: page
+          required: false
+          in: query
+          description: 'Number o page'
+          schema:
+            type: integer
+        - name: page_size
+          required: false
+          in: query
+          description: 'Number of Articles to return per page (maximum 1000)'
+          schema:
+            type: integer
+        - name: heading
+          required: false
+          in: query
+          description: 'Title contains (case-insensitive)'
+          schema:
+            type: string
+        - name: category
+          required: false
+          in: query
+          description: 'Categories'
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: created
+          required: false
+          in: query
+          description: 'Published later than (format: YYYY-MM-DD)'
+          schema:
+            type: string
+            format: date-time
+        - name: ordering
+          required: false
+          in: query
+          description: 'Order by (use "-" prefix to order descending). Available fields: "created", "rating"'
+          schema:
+            type: string
+      responses:
+        200:
+          content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Post'
+          description: ''
+      tags:
+        - articles
     post:
       operationId: createArticle
-      description: 'Create Article'
+      description: 'Create article'
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Post'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Post'
       responses:
-        '201':
+        201:
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Post'
-              description: ''
+      tags:
+        - article
+  /api/articles/{id}/:
+    get:
+      operationId: detailArticle
+      description: 'Article detail'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 'A unique integer value identifying this Article.'
+          schema:
+            type: integer
+      responses:
+        200:
+          content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+      tags:
+        - article
+    put:
+      operationId: editArticle
+      description: 'Article editing'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 'A unique integer value identifying this Article.'
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Post'
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+      tags:
+        - article
+    patch:
+      operationId: partialUpdateArticle
+      description: 'Partial Article editing'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 'A unique integer value identifying this Articles.'
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostProperties'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PostProperties'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+          description: 'Successfully updated'
+      tags:
+        - article
+    delete:
+      operationId: deleteArticle
+      description: 'Article deleting'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 'A unique integer value identifying this Article.'
+          schema:
+            type: integer
+      responses:
+        204:
+          description: 'Successfully deleted'
+      tags:
+        - article
 components:
   schemas:
     Post:
@@ -68,9 +342,33 @@ components:
         created:
           type: string
           format: date-time
-          readonly: true
+          readOnly: true
         category:
+          type: array
+          items:
+            type: integer
+        author:
+          type: string
+          readOnly: true
+        rating:
           type: integer
+          readOnly: true
       required:
-        - title
+        - heading
         - text
+        - category
+        - author
+    PostProperties:
+      type: object
+      properties:
+        id:
+          readOnly: true
+          type: integer
+        heading:
+          type: string
+        text:
+          type: string
+        category:
+          type: array
+          items:
+            type: integer
